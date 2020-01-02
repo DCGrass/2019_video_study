@@ -1,0 +1,69 @@
+<%inherit file="../base.html" />
+<%!
+from django.shortcuts import reverse
+from app.model.video import IdentityType
+%>
+
+
+<%def name="css()">
+    <link rel="stylesheet" href="/static/dashboard/css/video_sub.css"> 
+</%def>
+
+<%def name="content()">
+
+    <table class='table'>
+        <thead>
+            <tr>
+                <th>集数</th>
+                <th>地址</th>
+                <th>预览</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            % for video_sub in video.video_sub.all():
+            <tr>
+                <td>第${video_sub.number}集</td>
+                <td>${video_sub.url}</td>
+                <td><a href="${video_sub.url}">查看</a></td>
+            </tr>
+            %endfor
+        </tbody>
+    </table>
+
+    <h1>${video.name}</h1>
+
+    <span>${error}</span>
+
+    <h2>集数</h2>
+    <ul>
+        %for video_sub in video.video_sub.all():
+        <li><a href="${video_sub.url}">第${video_sub.number}集</a></li>
+        %endfor
+    </ul>
+
+    <h2>演员</h2>
+    <ul>
+        %for video_star in video.video_star.all():
+        <li><a href="${reverse('star_delete',kwargs={'star_id':video_star.id,'video_id':video.id})}">${video_star.name}:${IdentityType(video_star.identity).label}</a></li>
+        %endfor
+    </ul>
+
+    <form class="form-horizontal edit-area add-video-area add-url" method="POST">${csrf_token}
+        <label>添加地址:</label><input type="text" name='url' class="form-control">
+        <input type="submit" value="添加" class='btn btn-info' id='add-url-btn'>
+    </form>
+
+    <form class="form-horizontal edit-area add-video-area add-url" action="${reverse('video_star')}" method="POST">${csrf_token}
+        <label>演员</label>
+        <input type="text" name='name' class="form-control"></br>
+        <label>身份</label>
+        <select class='form-control' name='identity'>
+            %for identity in IdentityType:
+            <option value="${identity.value}">${identity.label}</option>
+            %endfor
+        </select>
+        <input type="hidden" value="${video.id}" name='video_id'> <!-- 隐藏的 -->
+        <input type="submit" value="添加" class='btn btn-info' id='add-star-btn'>
+    </form>
+</%def>
